@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notice Board</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    #noticeForm {
+      margin-bottom: 20px;
+    }
+
+    #noticeList {
+      list-style: none;
+      padding: 0;
+    }
+
+    .notice {
+      background-color: #f4f4f4;
+      padding: 10px;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+
+    .notice:hover {
+      background-color: #e0e0e0;
+    }
+
+    .notice-title,
+    .notice-category {
+      display: inline-block;
+      margin-right: 10px;
+    }
+
+    .notice-title-input,
+    .notice-category-input {
+      display: none;
+      width: 150px;
+    }
+  </style>
+</head>
+<body>
+
+<div>
+  <h1>Notice Board</h1>
+  <form id="noticeForm">
+    <label for="title">Title:</label>
+    <input type="text" id="title" required>
+    
+    <label for="category">Category:</label>
+    <input type="text" id="category" required>
+
+    <button type="button" onclick="addNotice()">Add Notice</button>
+  </form>
+
+  <ul id="noticeList"></ul>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    loadNotices();
+  });
+
+  function addNotice() {
+    const titleInput = document.getElementById("title");
+    const categoryInput = document.getElementById("category");
+
+    const title = titleInput.value;
+    const category = categoryInput.value;
+
+    if (title && category) {
+      const noticeList = document.getElementById("noticeList");
+
+      const noticeItem = document.createElement("li");
+      noticeItem.className = "notice";
+      noticeItem.innerHTML = `
+        <span class="notice-title" ondblclick="editField(this)">${title}</span>
+        <span class="notice-category" ondblclick="editField(this)">${category}</span>
+      `;
+      noticeList.insertBefore(noticeItem, noticeList.firstChild);
+
+      titleInput.value = "";
+      categoryInput.value = "";
+
+      saveNotices();
+    }
+  }
+
+  function editField(element) {
+    const inputField = element.classList.contains("notice-title") ? "notice-title-input" : "notice-category-input";
+    const currentValue = element.textContent;
+
+    element.style.display = "none";
+
+    const inputElement = document.createElement("input");
+    inputElement.type = "text";
+    inputElement.value = currentValue;
+    inputElement.className = inputField;
+    inputElement.addEventListener("blur", function () {
+      updateField(element, inputElement.value, inputField);
+    });
+    inputElement.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") {
+        updateField(element, inputElement.value, inputField);
+      }
+    });
+
+    element.parentNode.insertBefore(inputElement, element.nextSibling);
+    inputElement.focus();
+  }
+
+  function updateField(element, newValue, inputField) {
+    element.textContent = newValue;
+    element.style.display = "inline-block";
+
+    const inputElement = document.querySelector(`.${inputField}`);
+    if (inputElement) {
+      inputElement.parentNode.removeChild(inputElement);
+    }
+
+    saveNotices();
+  }
+
+  function saveNotices() {
+    const noticeList = document.getElementById("noticeList");
+    const notices = [];
+
+    noticeList.querySelectorAll(".notice").forEach((notice) => {
+      const title = notice.querySelector(".notice-title").textContent;
+      const category = notice.querySelector(".notice-category").textContent;
+      notices.push({ title, category });
+    });
+
+    localStorage.setItem("notices", JSON.stringify(notices));
+  }
+
+  function loadNotices() {
+    const noticeList = document.getElementById("noticeList");
+    const savedNotices = localStorage.getItem("notices");
+
+    if (savedNotices) {
+      const notices = JSON.parse(savedNotices);
+      notices.forEach((notice) => {
+        const noticeItem = document.createElement("li");
+        noticeItem.className = "notice";
+        noticeItem.innerHTML = `
+          <span class="notice-title" ondblclick="editField(this)">${notice.title}</span>
+          <span class="notice-category" ondblclick="editField(this)">${notice.category}</span>
+        `;
+        noticeList.appendChild(noticeItem);
+      });
+    }
+  }
+</script>
+
+</body>
+</html>

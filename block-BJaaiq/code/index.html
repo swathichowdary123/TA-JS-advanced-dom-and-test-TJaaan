@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinite Scroll Quotes</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        #quote-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .quote {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<script src="quotes.js"></script>
+
+<div id="quote-container">
+    <!-- Quotes will be dynamically added here -->
+</div>
+
+<script>
+    // Function to display a quote
+    function displayQuote(quote, author) {
+        const quoteContainer = document.getElementById('quote-container');
+        const quoteElement = document.createElement('div');
+        quoteElement.classList.add('quote');
+        quoteElement.innerHTML = `<blockquote>"${quote}"</blockquote><p>- ${author}</p>`;
+        quoteContainer.appendChild(quoteElement);
+    }
+
+    // Function to load initial quotes
+    function loadInitialQuotes() {
+        for (let i = 0; i < 3; i++) {
+            displayQuote(quotes[i].quote, quotes[i].author);
+        }
+    }
+
+    // Function to handle scroll event
+    function handleScroll() {
+        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        const windowHeight = window.innerHeight;
+        const bodyHeight = document.body.offsetHeight;
+
+        // Check if the user has scrolled to the bottom 20 pixels
+        if (scrollTop + windowHeight >= bodyHeight - 20) {
+            // Load more quotes
+            const currentQuotesCount = document.querySelectorAll('.quote').length;
+            const remainingQuotes = quotes.slice(currentQuotesCount, currentQuotesCount + 3);
+
+            // Display new quotes
+            remainingQuotes.forEach(({ quote, author }) => {
+                displayQuote(quote, author);
+            });
+        }
+    }
+
+    // Event listener for scroll
+    window.addEventListener('scroll', handleScroll);
+
+    // Event listener for DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', function () {
+        alert('The content of the DOM is loaded');
+        loadInitialQuotes();
+    });
+</script>
+
+</body>
+</html>

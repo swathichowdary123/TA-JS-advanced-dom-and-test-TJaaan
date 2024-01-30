@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drag and Drop Todo</title>
+    <style>
+        #todo-list {
+            list-style: none;
+            padding: 10px;
+            border: 1px solid #ccc;
+            max-width: 300px;
+        }
+
+        .todo-item {
+            background-color: #fff;
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            cursor: grab;
+        }
+    </style>
+</head>
+<body>
+    <h2>Drag and Drop Todo</h2>
+    <ul id="todo-list" ondrop="drop(event)" ondragover="allowDrop(event)">
+        <!-- List items will be dynamically added here -->
+    </ul>
+    <input type="text" id="new-item" placeholder="Add new item">
+    <button onclick="addItem()">Add</button>
+
+    <script>
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        function drag(event) {
+            event.dataTransfer.setData("text/plain", event.target.id);
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            const data = event.dataTransfer.getData("text/plain");
+            const draggedElement = document.getElementById(data);
+            const dropzone = event.target;
+
+            if (dropzone.tagName === 'LI') {
+                dropzone.parentNode.insertBefore(draggedElement, dropzone.nextSibling);
+            } else if (dropzone.tagName === 'UL') {
+                dropzone.appendChild(draggedElement);
+            }
+        }
+
+        function addItem() {
+            const newItemText = document.getElementById('new-item').value;
+            if (newItemText.trim() !== '') {
+                const newItem = document.createElement('li');
+                newItem.className = 'todo-item';
+                newItem.textContent = newItemText;
+                newItem.setAttribute('draggable', true);
+                newItem.setAttribute('ondragstart', 'drag(event)');
+
+                document.getElementById('todo-list').appendChild(newItem);
+                document.getElementById('new-item').value = '';
+            }
+        }
+    </script>
+</body>
+</html>
